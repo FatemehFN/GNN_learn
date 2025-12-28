@@ -1,0 +1,27 @@
+# Core Dependencies
+torch>=2.0.0
+torch-geometric>=2.3.0
+networkx>=3.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# Jupyter
+jupyter>=1.0.0
+ipykernel>=6.22.0
+ipywidgets>=8.0.0
+
+# Data handling
+pandas>=2.0.0
+scikit-learn>=1.2.0
+
+# Additional utilities
+tqdm>=4.65.0
+tensorboard>=2.12.0
+
+# For PDF generation (optional)
+reportlab>=4.0.0
