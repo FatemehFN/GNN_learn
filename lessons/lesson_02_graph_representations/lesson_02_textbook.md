@@ -18,26 +18,26 @@ In this lesson, we'll explore different graph representations and learn when to 
 
 An **adjacency matrix** is a square matrix A where:
 - Rows and columns represent nodes
-- A[i, j] = 1 if there's an edge from node i to node j
-- A[i, j] = 0 otherwise
+- $A[i, j] = 1$ if there's an edge from node i to node j
+- $A[i, j] = 0$ otherwise
 
-**For undirected graphs**: A is symmetric (A[i, j] = A[j, i])
+**For undirected graphs**: A is symmetric ($A[i, j] = A[j, i]$)
 
-**For weighted graphs**: A[i, j] = weight of edge (i, j)
+**For weighted graphs**: $A[i, j]$ = weight of edge $(i, j)$
 
 #### Mathematical Definition
 
-For a graph G = (V, E) with n = |V| nodes:
+For a graph $G = (V, E)$ with $n = |V|$ nodes:
 
-**A ∈ ℝⁿˣⁿ**
+$$A \in \mathbb{R}^{n \times n}$$
 
 where:
 
-```
-A[i, j] = { 1,         if (i, j) ∈ E (unweighted)
-          { w(i, j),   if (i, j) ∈ E (weighted)
-          { 0,         otherwise
-```
+$$A[i, j] = \begin{cases}
+1 & \text{if } (i, j) \in E \text{ (unweighted)} \\
+w(i, j) & \text{if } (i, j) \in E \text{ (weighted)} \\
+0 & \text{otherwise}
+\end{cases}$$
 
 #### Example
 
@@ -52,24 +52,24 @@ For a graph with edges: {(0,1), (0,2), (1,2), (2,3)}
 ```
 
 #### Advantages
-- **O(1)** edge lookup: Check if edge exists in constant time
-- **Easy to implement** matrix operations
-- **Natural for dense graphs**
-- **Supports weighted graphs** naturally
+- $O(1)$ edge lookup: Check if edge exists in constant time
+- Easy to implement matrix operations
+- Natural for dense graphs
+- Supports weighted graphs naturally
 
 #### Disadvantages
-- **O(n²)** space complexity (wasteful for sparse graphs)
-- **O(n²)** time to iterate all edges
-- Most real-world graphs are sparse (|E| << n²)
+- $O(n^2)$ space complexity (wasteful for sparse graphs)
+- $O(n^2)$ time to iterate all edges
+- Most real-world graphs are sparse ($|E| \ll n^2$)
 
 #### Space Complexity Analysis
 
-- **Dense graph** (|E| ≈ n²): Efficient
-- **Sparse graph** (|E| ≈ n): Wasteful (stores many zeros)
+- **Dense graph** ($|E| \approx n^2$): Efficient
+- **Sparse graph** ($|E| \approx n$): Wasteful (stores many zeros)
 
 For example, a social network with 1 million users and average 100 friends:
-- Adjacency matrix: 10¹² entries (mostly zeros)
-- Actual edges: 10⁸
+- Adjacency matrix: $10^{12}$ entries (mostly zeros)
+- Actual edges: $10^8$
 
 ---
 
@@ -83,9 +83,9 @@ An **edge list** is a list of all edges in the graph.
 
 #### Mathematical Definition
 
-E = [(u₁, v₁), (u₂, v₂), ..., (uₘ, vₘ)]
+$$E = [(u_1, v_1), (u_2, v_2), \ldots, (u_m, v_m)]$$
 
-where m = |E|
+where $m = |E|$
 
 #### Example
 
@@ -100,15 +100,15 @@ edges = [(0, 1, 0.5), (0, 2, 0.3), (1, 2, 0.7), (2, 3, 0.9)]
 ```
 
 #### Advantages
-- **O(m)** space complexity where m = |E|
-- **Compact for sparse graphs**
-- **Easy to iterate over all edges**
-- **Simple to implement**
+- $O(m)$ space complexity where $m = |E|$
+- Compact for sparse graphs
+- Easy to iterate over all edges
+- Simple to implement
 
 #### Disadvantages
-- **O(m)** edge lookup time
-- **O(m)** to find neighbors of a node
-- **Inefficient** for many graph algorithms
+- $O(m)$ edge lookup time
+- $O(m)$ to find neighbors of a node
+- Inefficient for many graph algorithms
 
 ---
 
@@ -118,8 +118,8 @@ An **adjacency list** stores for each node a list of its neighbors.
 
 #### Mathematical Definition
 
-For each v ∈ V:
-- **Adj[v]** = {u ∈ V : (v, u) ∈ E}
+For each $v \in V$:
+- $\text{Adj}[v] = \{u \in V : (v, u) \in E\}$
 
 #### Example
 
@@ -144,14 +144,14 @@ adj_list = {
 ```
 
 #### Advantages
-- **O(n + m)** space complexity
-- **Efficient neighbor lookup**: O(deg(v)) for node v
-- **Good for sparse graphs**
-- **Natural for many algorithms** (BFS, DFS)
+- $O(n + m)$ space complexity
+- Efficient neighbor lookup: $O(\deg(v))$ for node $v$
+- Good for sparse graphs
+- Natural for many algorithms (BFS, DFS)
 
 #### Disadvantages
-- **O(deg(v))** edge lookup time
-- **Slightly more complex** to implement than edge list
+- $O(\deg(v))$ edge lookup time
+- Slightly more complex to implement than edge list
 
 ---
 
@@ -164,43 +164,43 @@ An **incidence matrix** B has:
 
 #### Mathematical Definition
 
-For graph G = (V, E) with n nodes and m edges:
+For graph $G = (V, E)$ with n nodes and m edges:
 
-**B ∈ ℝⁿˣᵐ**
+$$B \in \mathbb{R}^{n \times m}$$
 
 For undirected graphs:
-```
-B[i, j] = { 1,  if node i is incident to edge j
-          { 0,  otherwise
-```
+$$B[i, j] = \begin{cases}
+1 & \text{if node } i \text{ is incident to edge } j \\
+0 & \text{otherwise}
+\end{cases}$$
 
 For directed graphs:
-```
-B[i, j] = {  1,  if edge j leaves node i
-          { -1,  if edge j enters node i
-          {  0,  otherwise
-```
+$$B[i, j] = \begin{cases}
+1 & \text{if edge } j \text{ leaves node } i \\
+-1 & \text{if edge } j \text{ enters node } i \\
+0 & \text{otherwise}
+\end{cases}$$
 
 #### Example (Undirected)
 
-Edges: e₁=(0,1), e₂=(0,2), e₃=(1,2), e₄=(2,3)
+Edges: $e_1=(0,1)$, $e_2=(0,2)$, $e_3=(1,2)$, $e_4=(2,3)$
 
 ```
-      e₁  e₂  e₃  e₄
-  0 [  1   1   0   0 ]
-  1 [  1   0   1   0 ]
-  2 [  0   1   1   1 ]
-  3 [  0   0   0   1 ]
+      e_1  e_2  e_3  e_4
+  0 [  1    1    0    0  ]
+  1 [  1    0    1    0  ]
+  2 [  0    1    1    1  ]
+  3 [  0    0    0    1  ]
 ```
 
 #### Advantages
-- **Useful for certain algorithms** (network flow)
-- **Explicit edge representation**
+- Useful for certain algorithms (network flow)
+- Explicit edge representation
 
 #### Disadvantages
-- **O(n × m)** space complexity
-- **Rarely used in practice** for GNNs
-- **Inefficient** for most operations
+- $O(n \times m)$ space complexity
+- Rarely used in practice for GNNs
+- Inefficient for most operations
 
 ---
 
@@ -212,12 +212,12 @@ For machine learning, we augment graph structure with node and edge features.
 
 #### Node Feature Matrix
 
-**X ∈ ℝⁿˣᵈ**
+$$X \in \mathbb{R}^{n \times d}$$
 
 where:
-- n = number of nodes
-- d = feature dimension
-- X[i, :] = feature vector for node i
+- $n$ = number of nodes
+- $d$ = feature dimension
+- $X[i, :]$ = feature vector for node $i$
 
 #### Example
 
@@ -234,11 +234,11 @@ X = [
 
 #### Edge Feature Matrix
 
-**E_feat ∈ ℝᵐˣᶠ**
+$$E_{\text{feat}} \in \mathbb{R}^{m \times f}$$
 
 where:
-- m = number of edges
-- f = edge feature dimension
+- $m$ = number of edges
+- $f$ = edge feature dimension
 
 #### Example
 
@@ -350,27 +350,27 @@ In GNNs, aggregating neighbor features can lead to:
 
 Used in Graph Convolutional Networks (GCNs):
 
-**Ã = D^(-1/2) A D^(-1/2)**
+$$\tilde{A} = D^{-1/2} A D^{-1/2}$$
 
 where:
-- A: Adjacency matrix
-- D: Degree matrix (diagonal with D[i,i] = deg(i))
+- $A$: Adjacency matrix
+- $D$: Degree matrix (diagonal with $D[i,i] = \deg(i)$)
 
 **Intuition**: Normalize by degree of both source and target nodes
 
 ### Row Normalization
 
-**Ã = D^(-1) A**
+$$\tilde{A} = D^{-1} A$$
 
-where D^(-1)[i,i] = 1/deg(i)
+where $D^{-1}[i,i] = \frac{1}{\deg(i)}$
 
 **Intuition**: Average over neighbors (each neighbor contributes equally)
 
 ### Adding Self-Loops
 
-**Ã = A + I**
+$$\tilde{A} = A + I$$
 
-where I is the identity matrix
+where $I$ is the identity matrix
 
 **Intuition**: Include node's own features in aggregation
 
@@ -384,13 +384,13 @@ For mini-batch training with multiple graphs:
 
 Create a block diagonal adjacency matrix:
 
-```
-A_batch = [ A₁   0   0  ]
-          [ 0   A₂   0  ]
-          [ 0    0  A₃ ]
-```
+$$A_{\text{batch}} = \begin{bmatrix}
+A_1 & 0 & 0 \\
+0 & A_2 & 0 \\
+0 & 0 & A_3
+\end{bmatrix}$$
 
-Node features: X_batch = [X₁; X₂; X₃] (vertical concatenation)
+Node features: $X_{\text{batch}} = [X_1; X_2; X_3]$ (vertical concatenation)
 
 ### Batch Vector
 
@@ -409,16 +409,16 @@ batch = [0, 0, 0, 1, 1, 2, 2, 2, 2]
 
 | Representation    | Space      | Edge Lookup | Neighbor Lookup | Best For           |
 |-------------------|------------|-------------|-----------------|-------------------|
-| Adjacency Matrix  | O(n²)      | O(1)        | O(n)            | Dense graphs      |
-| Edge List         | O(m)       | O(m)        | O(m)            | Simple storage    |
-| Adjacency List    | O(n + m)   | O(deg(v))   | O(deg(v))       | Most algorithms   |
-| Incidence Matrix  | O(n × m)   | O(m)        | O(m)            | Theoretical use   |
-| COO Sparse        | O(m)       | O(m)        | O(m)            | GNNs, GPU         |
+| Adjacency Matrix  | $O(n^2)$      | $O(1)$        | $O(n)$            | Dense graphs      |
+| Edge List         | $O(m)$       | $O(m)$        | $O(m)$            | Simple storage    |
+| Adjacency List    | $O(n + m)$   | $O(\deg(v))$   | $O(\deg(v))$       | Most algorithms   |
+| Incidence Matrix  | $O(n \times m)$   | $O(m)$        | $O(m)$            | Theoretical use   |
+| COO Sparse        | $O(m)$       | $O(m)$        | $O(m)$            | GNNs, GPU         |
 
 where:
-- n = number of nodes
-- m = number of edges
-- deg(v) = degree of node v
+- $n$ = number of nodes
+- $m$ = number of edges
+- $\deg(v)$ = degree of node $v$
 
 ---
 
@@ -427,7 +427,7 @@ where:
 ### When to Use What?
 
 **Adjacency Matrix**:
-- Dense graphs (|E| ≈ n²)
+- Dense graphs ($|E| \approx n^2$)
 - Spectral methods
 - Small graphs
 - Need fast edge lookup

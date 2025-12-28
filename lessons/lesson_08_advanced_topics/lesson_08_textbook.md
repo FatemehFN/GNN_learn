@@ -13,12 +13,12 @@ This lesson covers cutting-edge topics in Graph Neural Networks and their practi
 A **heterogeneous graph** (or heterogeneous network) contains multiple types of nodes and/or multiple types of edges. Unlike simple graphs where all nodes and edges are identical, heterogeneous graphs model complex real-world systems where entities play different roles.
 
 **Formal Definition**:
-- **Heterogeneous Graph**: G = (V, E, A, R)
-  - V: set of nodes
-  - E: set of edges
-  - A: node type set
-  - R: edge type set
-  - Type mapping: τ: V → A and φ: E → R
+- **Heterogeneous Graph**: $G = (V, E, A, R)$
+  - $V$: set of nodes
+  - $E$: set of edges
+  - $A$: node type set
+  - $R$: edge type set
+  - Type mapping: $\tau: V \rightarrow A$ and $\phi: E \rightarrow R$
 
 ### 1.2 Examples in Real-World
 
@@ -57,18 +57,16 @@ A **heterogeneous graph** (or heterogeneous network) contains multiple types of 
 
 For each meta-path P and target node i:
 
-```
-a_ij^P = exp(LeakyReLU(W_att^T [h_i || h_j])) / Σ_k exp(LeakyReLU(W_att^T [h_i || h_k]))
+$$a_{ij}^P = \frac{\exp(\text{LeakyReLU}(W_{\text{att}}^T [h_i \, || \, h_j]))}{\sum_k \exp(\text{LeakyReLU}(W_{\text{att}}^T [h_i \, || \, h_k]))}$$
 
-h_i^P = Σ_j a_ij^P W_in^P h_j
+$$h_i^P = \sum_j a_{ij}^P W_{\text{in}}^P h_j$$
 
-h_i = Σ_P β_P h_i^P
-```
+$$h_i = \sum_P \beta_P h_i^P$$
 
 Where:
-- P represents a meta-path
-- β_P is the importance weight of meta-path P
-- h_i^P is the aggregated representation via meta-path P
+- $P$ represents a meta-path
+- $\beta_P$ is the importance weight of meta-path P
+- $h_i^P$ is the aggregated representation via meta-path P
 
 ### 1.5 Implementation Considerations
 
@@ -79,7 +77,7 @@ Where:
 
 2. **Feature Heterogeneity**:
    - Different node types may have different feature dimensions
-   - Use type-specific transformations: W_i^(l) for node type i
+   - Use type-specific transformations: $W_i^{(l)}$ for node type i
    - Project features to common embedding space
 
 3. **Scalability**:
@@ -108,8 +106,8 @@ Where:
 Real-world graphs are not static; they evolve over time. **Temporal graphs** (also called dynamic graphs or evolving graphs) capture this temporal dimension.
 
 **Types of Temporal Dynamics**:
-1. **Discrete time**: G(t₀), G(t₁), G(t₂), ... sequence of snapshots
-2. **Continuous time**: G(t) for any time t ∈ [0, ∞)
+1. **Discrete time**: $G(t_0), G(t_1), G(t_2), \ldots$ sequence of snapshots
+2. **Continuous time**: $G(t)$ for any time $t \in [0, \infty)$
 3. **Event-based**: Graph state changes with discrete events
 
 ### 2.2 Challenges
@@ -126,13 +124,11 @@ Real-world graphs are not static; they evolve over time. **Temporal graphs** (al
 Treat temporal graph as sequence of static graphs and apply GNN at each timestamp.
 
 **Architecture**:
-```
-G(t₀) → GNN → h(t₀)
-G(t₁) → GNN → h(t₁)
-G(t₂) → GNN → h(t₂)
-    ↓
-   RNN (LSTM/GRU) → Future Prediction
-```
+$$G(t_0) \rightarrow \text{GNN} \rightarrow h(t_0)$$
+$$G(t_1) \rightarrow \text{GNN} \rightarrow h(t_1)$$
+$$G(t_2) \rightarrow \text{GNN} \rightarrow h(t_2)$$
+$$\downarrow$$
+$$\text{RNN (LSTM/GRU)} \rightarrow \text{Future Prediction}$$
 
 **Pros**: Simple, can leverage existing GNN architectures
 **Cons**: May miss fine-grained temporal dynamics
@@ -148,7 +144,7 @@ Use neural networks to model continuous evolution.
 
 **Neural Ordinary Differential Equations (Neural ODEs)**:
 - Model node embeddings as continuous functions of time
-- dh_i/dt = f_θ(h_i(t), t)
+- $\frac{dh_i}{dt} = f_\theta(h_i(t), t)$
 - Can interpolate embeddings between observed times
 
 #### C. Recurrent Approaches
@@ -161,36 +157,30 @@ Use RNNs or Transformers on graph structure.
 - Uses memory to generate node embeddings
 
 **Architecture**:
-```
-Event: (u, v, t, m)
-  ↓
-Update Memory: m_u(t) = RNN(m_u(t⁻), (v, t, m))
-  ↓
-Generate Embedding: h_u(t) = Aggregate(m_u(t), neighbors)
-  ↓
-Prediction
-```
+$$\text{Event: } (u, v, t, m)$$
+$$\downarrow$$
+$$\text{Update Memory: } m_u(t) = \text{RNN}(m_u(t^-), (v, t, m))$$
+$$\downarrow$$
+$$\text{Generate Embedding: } h_u(t) = \text{Aggregate}(m_u(t), \text{neighbors})$$
+$$\downarrow$$
+$$\text{Prediction}$$
 
 ### 2.4 Mathematical Framework
 
 **Discrete-Time Formulation**:
 
-For temporal graphs with snapshots G(t), t = 0, 1, ..., T:
+For temporal graphs with snapshots $G(t)$, $t = 0, 1, \ldots, T$:
 
-```
-h_i^(t) = AGGREGATE({(h_j^(t-τ), e_{ij}^(t-τ)) for j ∈ N_i})
+$$h_i^{(t)} = \text{AGGREGATE}(\{(h_j^{(t-\tau)}, e_{ij}^{(t-\tau)}) \text{ for } j \in N_i\})$$
 
-where τ ∈ [0, T_agg] represents historical context window
-```
+where $\tau \in [0, T_{\text{agg}}]$ represents historical context window
 
 **Continuous-Time Formulation**:
 
 Using Neural ODE:
-```
-dh_i/dt = f(h_i(t), e_i(t), t)
+$$\frac{dh_i}{dt} = f(h_i(t), e_i(t), t)$$
 
-h_i(t₁) = h_i(t₀) + ∫_{t₀}^{t₁} f(h_i(τ), e_i(τ), τ) dτ
-```
+$$h_i(t_1) = h_i(t_0) + \int_{t_0}^{t_1} f(h_i(\tau), e_i(\tau), \tau) d\tau$$
 
 ### 2.5 Applications
 
@@ -219,17 +209,15 @@ h_i(t₁) = h_i(t₀) + ∫_{t₀}^{t₁} f(h_i(τ), e_i(τ), τ) dτ
 Generate graph one node/edge at a time, conditioned on previous choices.
 
 **GraphRNN**:
-- Generate node sequence: n₁, n₂, ..., n_N
+- Generate node sequence: $n_1, n_2, \ldots, n_N$
 - At each step, determine connections to previous nodes
 - Output sequence of edge adjacency vectors
 
 **Architecture**:
-```
-s₁ → RNN → p(edges to node 2)
-s₁,s₂ → RNN → p(edges to node 3)
-s₁,s₂,s₃ → RNN → p(edges to node 4)
-...
-```
+$$s_1 \rightarrow \text{RNN} \rightarrow p(\text{edges to node 2})$$
+$$s_1,s_2 \rightarrow \text{RNN} \rightarrow p(\text{edges to node 3})$$
+$$s_1,s_2,s_3 \rightarrow \text{RNN} \rightarrow p(\text{edges to node 4})$$
+$$\ldots$$
 
 **Order Matters**: Different node orderings produce different generation sequences
 
@@ -315,29 +303,23 @@ Real KGs are incomplete. We need to predict missing facts.
 **A. Translation-Based Models (TransE)**
 
 Represent entities and relations as embeddings:
-```
-h + r ≈ t (in ideal case)
+$$h + r \approx t \text{ (in ideal case)}$$
 
-Score(h, r, t) = ||h + r - t||₂
-```
+$$\text{Score}(h, r, t) = ||h + r - t||_2$$
 
 Key idea: Relation is a translation from head to tail entity
 
 **B. Semantic Matching Models (DistMult)**
 
 Learn multiple semantic aspects:
-```
-Score(h, r, t) = <h, r, t> (multilinear form)
-                = Σᵢ h_i * r_i * t_i
-```
+$$\text{Score}(h, r, t) = \langle h, r, t \rangle \text{ (multilinear form)}$$
+$$= \sum_i h_i \cdot r_i \cdot t_i$$
 
 **C. Graph Neural Network Approaches**
 
 Use GNNs to learn entity embeddings:
-```
-h_entity = GNN(neighborhood features, relation features)
-Score(h, r, t) = Neural network(h_entity, r, t_entity)
-```
+$$h_{\text{entity}} = \text{GNN}(\text{neighborhood features, relation features})$$
+$$\text{Score}(h, r, t) = \text{Neural network}(h_{\text{entity}}, r, t_{\text{entity}})$$
 
 ### 4.4 Relation Types
 
@@ -349,9 +331,7 @@ Score(h, r, t) = Neural network(h_entity, r, t_entity)
 ### 4.5 Reasoning and Inference
 
 **Path-Based Reasoning**:
-```
-(X, borrows_from, Y) ← (X, employed_by, Z) ∧ (Z, partner_of, W) ∧ (W, owns, Y)
-```
+$$(X, \text{borrows\_from}, Y) \leftarrow (X, \text{employed\_by}, Z) \land (Z, \text{partner\_of}, W) \land (W, \text{owns}, Y)$$
 
 **Logical Reasoning**:
 - Rule mining from KG

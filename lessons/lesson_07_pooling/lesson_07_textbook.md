@@ -74,9 +74,7 @@ Global pooling aggregates all nodes in a graph into a single vector.
 
 #### Sum Pooling
 
-```
-g = Σᵢ hᵢ
-```
+$$g = \sum_i h_i$$
 
 **Pros:**
 - Simple and interpretable
@@ -90,9 +88,7 @@ g = Σᵢ hᵢ
 
 #### Mean Pooling
 
-```
-g = (1/n) Σᵢ hᵢ
-```
+$$g = \frac{1}{n} \sum_i h_i$$
 
 **Pros:**
 - Normalized by graph size
@@ -105,9 +101,7 @@ g = (1/n) Σᵢ hᵢ
 
 #### Max Pooling
 
-```
-gⱼ = maxᵢ hᵢⱼ (element-wise maximum)
-```
+$$g_j = \max_i h_{ij} \text{ (element-wise maximum)}$$
 
 **Pros:**
 - Preserves distinctive node features
@@ -123,11 +117,9 @@ gⱼ = maxᵢ hᵢⱼ (element-wise maximum)
 
 A general readout function combines different pooling operations:
 
-```
-g = h_sum || h_mean || h_max
-```
+$$g = h_{\text{sum}} \, || \, h_{\text{mean}} \, || \, h_{\text{max}}$$
 
-where `||` denotes concatenation. This combines the benefits of all three approaches.
+where $||$ denotes concatenation. This combines the benefits of all three approaches.
 
 ### Limitations of Global Pooling
 
@@ -197,42 +189,36 @@ where:
 ### The DiffPool Operation
 
 Given:
-- Node embeddings: H ∈ ℝ^(n × d) (n nodes, d-dimensional features)
-- Adjacency matrix: A ∈ ℝ^(n × n)
+- Node embeddings: $H \in \mathbb{R}^{n \times d}$ (n nodes, d-dimensional features)
+- Adjacency matrix: $A \in \mathbb{R}^{n \times n}$
 
 **Step 1: Learn Assignment Matrix**
 
-```
-S = softmax(GNN(H, A))  ∈ ℝ^(n × k)
-```
+$$S = \text{softmax}(\text{GNN}(H, A)) \in \mathbb{R}^{n \times k}$$
 
 Each column of S is softmax-normalized, so each node has a probability distribution over super-nodes.
 
 **Step 2: Pool Node Features**
 
-```
-H_pool = S^T @ H  ∈ ℝ^(k × d)
-```
+$$H_{\text{pool}} = S^T H \in \mathbb{R}^{k \times d}$$
 
-Each row of H_pool is a weighted combination of original node embeddings.
+Each row of $H_{\text{pool}}$ is a weighted combination of original node embeddings.
 
 **Step 3: Pool Adjacency Matrix**
 
-```
-A_pool = S^T @ A @ S  ∈ ℝ^(k × k)
-```
+$$A_{\text{pool}} = S^T A S \in \mathbb{R}^{k \times k}$$
 
 This creates a new adjacency matrix for super-nodes, where the weight between super-nodes is the sum of edge weights between their constituent nodes.
 
 ### Mathematical Formulation
 
-Let G = (H, A) be a graph with node features H and adjacency A.
+Let $G = (H, A)$ be a graph with node features H and adjacency A.
 
-At layer ℓ:
-1. Compute assignment matrix: Sₗ = softmax(GNNₗ(Hₗ, Aₗ))
-2. Update node embeddings: Hₗ₊₁ = MLPₗ(Hₗ, Aₗ)
-3. Pool features: H'ₗ₊₁ = Sₗᵀ Hₗ₊₁
-4. Pool adjacency: A'ₗ₊₁ = Sₗᵀ Aₗ Sₗ
+At layer $\ell$:
+1. Compute assignment matrix: $S_\ell = \text{softmax}(\text{GNN}_\ell(H_\ell, A_\ell))$
+2. Update node embeddings: $H_{\ell+1} = \text{MLP}_\ell(H_\ell, A_\ell)$
+3. Pool features: $H'_{\ell+1} = S_\ell^T H_{\ell+1}$
+4. Pool adjacency: $A'_{\ell+1} = S_\ell^T A_\ell S_\ell$
 
 The GNN that produces S should be different from the GNN that updates node features to ensure they're trained differently.
 
@@ -240,22 +226,18 @@ The GNN that produces S should be different from the GNN that updates node featu
 
 To encourage meaningful clustering, DiffPool adds an auxiliary loss term:
 
-```
-L_aux = ||A - SS^T||_F²
-```
+$$\mathcal{L}_{\text{aux}} = ||A - SS^T||_F^2$$
 
-where ||·||_F is the Frobenius norm. This loss encourages the reconstructed adjacency SS^T to be similar to the actual adjacency A, promoting **cohesive clustering** (nodes in the same cluster should have been connected).
+where $||\cdot||_F$ is the Frobenius norm. This loss encourages the reconstructed adjacency $SS^T$ to be similar to the actual adjacency A, promoting **cohesive clustering** (nodes in the same cluster should have been connected).
 
 ### Full Loss Function
 
-```
-L_total = L_task + λ_aux * L_aux
-```
+$$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{task}} + \lambda_{\text{aux}} \cdot \mathcal{L}_{\text{aux}}$$
 
 where:
-- L_task = main task loss (e.g., cross-entropy for classification)
-- L_aux = auxiliary loss (encourages good clusters)
-- λ_aux = hyperparameter balancing the two losses
+- $\mathcal{L}_{\text{task}}$ = main task loss (e.g., cross-entropy for classification)
+- $\mathcal{L}_{\text{aux}}$ = auxiliary loss (encourages good clusters)
+- $\lambda_{\text{aux}}$ = hyperparameter balancing the two losses
 
 ### Advantages of DiffPool
 
@@ -266,7 +248,7 @@ where:
 
 ### Disadvantages of DiffPool
 
-1. **Computational cost**: O(n²) space and time for assignment matrix and pooling
+1. **Computational cost**: $O(n^2)$ space and time for assignment matrix and pooling
 2. **Sensitivity to initialization**: Can get stuck in poor local optima
 3. **Hard to scale**: Problematic for very large graphs (millions of nodes)
 4. **Complexity**: More hyperparameters to tune
@@ -285,41 +267,33 @@ Paper: "Graph U-Nets" (Lee et al., ICML 2019)
 
 Instead of learning a full assignment matrix, Top-K selects the most "important" nodes:
 
-```
-1. Score each node: score_i = (h_i · w) / ||w||
+1. Score each node: $\text{score}_i = \frac{h_i \cdot w}{||w||}$
 2. Select top-k nodes by score
 3. Prune edges to/from non-selected nodes
 4. Continue with reduced graph
-```
 
 ### Detailed Algorithm
 
 **Step 1: Compute Node Scores**
 
-```
-score_i = σ(h_i · w)
-```
+$$\text{score}_i = \sigma(h_i \cdot w)$$
 
 where:
-- h_i = node embedding
-- w = learnable scoring vector
-- σ = sigmoid function
+- $h_i$ = node embedding
+- $w$ = learnable scoring vector
+- $\sigma$ = sigmoid function
 
 **Step 2: Select Top-K Nodes**
 
-```
-k = ceil(r * n)  (where r ∈ [0,1] is pooling ratio)
-idx = top_k(score, k)
-```
+$$k = \lceil r \cdot n \rceil \quad \text{(where } r \in [0,1] \text{ is pooling ratio)}$$
+$$\text{idx} = \text{top\_k}(\text{score}, k)$$
 
 Select the k nodes with highest scores.
 
 **Step 3: Create Pooled Graph**
 
-```
-H_pool = H[idx]  (select embeddings of kept nodes)
-A_pool = A[idx][:, idx]  (select subgraph induced by kept nodes)
-```
+$$H_{\text{pool}} = H[\text{idx}] \quad \text{(select embeddings of kept nodes)}$$
+$$A_{\text{pool}} = A[\text{idx}][:, \text{idx}] \quad \text{(select subgraph induced by kept nodes)}$$
 
 **Step 4: Update Node Scores**
 
@@ -327,7 +301,7 @@ For nodes that remain, maintain their importance scores for potential unpooling.
 
 ### Advantages of Top-K Pooling
 
-1. **Computational efficiency**: O(n log n) or O(n) with partial sorting
+1. **Computational efficiency**: $O(n \log n)$ or $O(n)$ with partial sorting
 2. **Interpretable**: Explicitly selects important nodes
 3. **Differentiable**: Gradients flow through selection operation
 4. **Flexible pooling ratio**: Can adjust k as hyperparameter
@@ -380,29 +354,23 @@ where W is a learnable weight matrix. This allows the scoring to depend on the n
 
 **Step 1: Compute Self-Attention Scores**
 
-```
-scores = σ(H · w + b)
-```
+$$\text{scores} = \sigma(H \cdot w + b)$$
 
 where:
-- H ∈ ℝ^(n × d) = node embeddings
-- w ∈ ℝ^d = learnable scoring weights
-- b = bias term
-- σ = sigmoid activation
+- $H \in \mathbb{R}^{n \times d}$ = node embeddings
+- $w \in \mathbb{R}^d$ = learnable scoring weights
+- $b$ = bias term
+- $\sigma$ = sigmoid activation
 
 **Step 2: Select Top-K Nodes**
 
-```
-k = ceil(ratio * n)
-idx = top_k(scores, k)
-```
+$$k = \lceil \text{ratio} \cdot n \rceil$$
+$$\text{idx} = \text{top\_k}(\text{scores}, k)$$
 
 **Step 3: Create Pooled Graph**
 
-```
-H_pool = H[idx]
-A_pool = A[idx][:, idx]
-```
+$$H_{\text{pool}} = H[\text{idx}]$$
+$$A_{\text{pool}} = A[\text{idx}][:, \text{idx}]$$
 
 **Step 4: Apply GNNs to Pooled Graph**
 
@@ -420,14 +388,14 @@ Apply another GNN layer to the pooled graph to learn representations of the sele
 1. **Limited expressiveness**: Attention scores are based on individual node features
 2. **Graph structure ignored**: Doesn't consider connections when scoring
 3. **Hard selection**: Discrete selection may lose useful information
-4. **Scalability**: Still O(n log n) for very large graphs
+4. **Scalability**: Still $O(n \log n)$ for very large graphs
 
 ### Comparison: SAGPool vs Top-K vs DiffPool
 
 | Property | Top-K | SAGPool | DiffPool |
 |----------|-------|---------|----------|
 | **Scoring** | Learned vector | Attention | Learned assignment |
-| **Complexity** | O(n log n) | O(n log n) | O(n²) |
+| **Complexity** | $O(n \log n)$ | $O(n \log n)$ | $O(n^2)$ |
 | **Differentiability** | Yes | Yes | Yes |
 | **Cluster info** | No | No | Yes |
 | **Scalability** | Good | Good | Poor |

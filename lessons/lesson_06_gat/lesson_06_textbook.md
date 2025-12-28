@@ -116,11 +116,11 @@ Where:
 
 For each edge $(i,j)$, compute an attention logit using a shared attention mechanism:
 
-$$e_{ij} = \text{LeakyReLU}\left(\mathbf{a}^T[\mathbf{h}_i' \| \mathbf{h}_j']\right)$$
+$$e_{ij} = \text{LeakyReLU}\left(\mathbf{a}^T[\mathbf{h}_i' \, || \, \mathbf{h}_j']\right)$$
 
 Where:
 - $\mathbf{a} \in \mathbb{R}^{2F'}$ is a learnable attention vector
-- $[\cdot \| \cdot]$ denotes concatenation
+- $[\ \cdot \, || \, \cdot \ ]$ denotes concatenation
 - $\text{LeakyReLU}$ is a non-linearity
 
 **Alternative formulation** (sometimes used):

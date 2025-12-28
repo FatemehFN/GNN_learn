@@ -32,22 +32,22 @@ At each layer k, message passing consists of:
 
 For node v at layer k:
 
-**h_v^(k) = UPDATE^(k)(h_v^(k-1), AGGREGATE^(k)({MESSAGE^(k)(h_v^(k-1), h_u^(k-1)) : u ∈ N(v)}))**
+$$h_v^{(k)} = \text{UPDATE}^{(k)}\left(h_v^{(k-1)}, \text{AGGREGATE}^{(k)}\left(\{\text{MESSAGE}^{(k)}(h_v^{(k-1)}, h_u^{(k-1)}) : u \in N(v)\}\right)\right)$$
 
 Where:
-- **h_v^(k)**: Representation of node v at layer k
-- **N(v)**: Neighbors of node v
+- $h_v^{(k)}$: Representation of node v at layer k
+- $N(v)$: Neighbors of node v
 - **MESSAGE**: Function that creates messages
 - **AGGREGATE**: Function that combines messages
 - **UPDATE**: Function that updates node representation
 
 ### Simplified Form
 
-**h_v^(k) = σ(W^(k) · AGGREGATE({h_u^(k-1) : u ∈ N(v)}))**
+$$h_v^{(k)} = \sigma\left(W^{(k)} \cdot \text{AGGREGATE}\left(\{h_u^{(k-1)} : u \in N(v)\}\right)\right)$$
 
 Where:
-- **W^(k)**: Learnable weight matrix at layer k
-- **σ**: Non-linear activation function (ReLU, tanh, etc.)
+- $W^{(k)}$: Learnable weight matrix at layer k
+- $\sigma$: Non-linear activation function (ReLU, tanh, etc.)
 
 ---
 
@@ -57,24 +57,24 @@ Where:
 
 Simply pass neighbor's representation:
 
-**m_u→v = h_u**
+$$m_{u \rightarrow v} = h_u$$
 
 ### Edge-Weighted Message
 
 Include edge information:
 
-**m_u→v = w(u,v) · h_u**
+$$m_{u \rightarrow v} = w(u,v) \cdot h_u$$
 
 ### Learned Message
 
 Apply neural network:
 
-**m_u→v = MLP(h_u, h_v, e_uv)**
+$$m_{u \rightarrow v} = \text{MLP}(h_u, h_v, e_{uv})$$
 
 Where:
-- **h_u**: Source node features
-- **h_v**: Target node features
-- **e_uv**: Edge features
+- $h_u$: Source node features
+- $h_v$: Target node features
+- $e_{uv}$: Edge features
 
 ---
 
@@ -84,7 +84,7 @@ The aggregation function must be **permutation invariant**: the order of neighbo
 
 ### 1. Sum Aggregation
 
-**AGGREGATE({h_u : u ∈ N(v)}) = ∑_{u ∈ N(v)} h_u**
+$$\text{AGGREGATE}(\{h_u : u \in N(v)\}) = \sum_{u \in N(v)} h_u$$
 
 **Properties**:
 - Simple and efficient
@@ -95,7 +95,7 @@ The aggregation function must be **permutation invariant**: the order of neighbo
 
 ### 2. Mean Aggregation
 
-**AGGREGATE({h_u : u ∈ N(v)}) = 1/|N(v)| ∑_{u ∈ N(v)} h_u**
+$$\text{AGGREGATE}(\{h_u : u \in N(v)\}) = \frac{1}{|N(v)|} \sum_{u \in N(v)} h_u$$
 
 **Properties**:
 - Normalized by degree
@@ -106,7 +106,7 @@ The aggregation function must be **permutation invariant**: the order of neighbo
 
 ### 3. Max Aggregation
 
-**AGGREGATE({h_u : u ∈ N(v)}) = MAX({h_u : u ∈ N(v)})**
+$$\text{AGGREGATE}(\{h_u : u \in N(v)\}) = \max(\{h_u : u \in N(v)\})$$
 
 Element-wise maximum across all neighbor representations.
 
@@ -118,9 +118,9 @@ Element-wise maximum across all neighbor representations.
 
 ### 4. Attention-Based Aggregation
 
-**AGGREGATE({h_u : u ∈ N(v)}) = ∑_{u ∈ N(v)} α_uv · h_u**
+$$\text{AGGREGATE}(\{h_u : u \in N(v)\}) = \sum_{u \in N(v)} \alpha_{uv} \cdot h_u$$
 
-Where α_uv are learned attention weights.
+Where $\alpha_{uv}$ are learned attention weights.
 
 **Properties**:
 - Learns which neighbors are important
@@ -135,21 +135,21 @@ We'll cover this in detail in Lesson 6 on Graph Attention Networks.
 
 ### Concatenation + Linear
 
-**h_v^(k) = σ(W · [h_v^(k-1) || m_v^(k)])**
+$$h_v^{(k)} = \sigma(W \cdot [h_v^{(k-1)} \, || \, m_v^{(k)}])$$
 
 Where:
-- **||**: Concatenation
-- **m_v^(k)**: Aggregated messages
+- $||$: Concatenation
+- $m_v^{(k)}$: Aggregated messages
 
 ### Addition + Linear
 
-**h_v^(k) = σ(W_1 · h_v^(k-1) + W_2 · m_v^(k))**
+$$h_v^{(k)} = \sigma(W_1 \cdot h_v^{(k-1)} + W_2 \cdot m_v^{(k)})$$
 
 ### Gated Update (GRU-style)
 
-**h_v^(k) = (1 - z_v) ⊙ h_v^(k-1) + z_v ⊙ h̃_v^(k)**
+$$h_v^{(k)} = (1 - z_v) \odot h_v^{(k-1)} + z_v \odot \tilde{h}_v^{(k)}$$
 
-Where z_v is a learned gate.
+Where $z_v$ is a learned gate.
 
 ---
 
@@ -159,20 +159,20 @@ Where z_v is a learned gate.
 
 Graphs have no inherent node ordering. Our functions must be **permutation invariant**:
 
-**f({x_1, x_2, ..., x_n}) = f({x_π(1), x_π(2), ..., x_π(n)})**
+$$f(\{x_1, x_2, \ldots, x_n\}) = f(\{x_{\pi(1)}, x_{\pi(2)}, \ldots, x_{\pi(n)}\})$$
 
-For any permutation π.
+For any permutation $\pi$.
 
 ### Permutation Invariant Functions
 
 These operations are permutation invariant:
-- **Sum**: ∑_i x_i
-- **Mean**: 1/n ∑_i x_i
-- **Max**: max_i x_i
-- **Product**: ∏_i x_i
+- **Sum**: $\sum_i x_i$
+- **Mean**: $\frac{1}{n} \sum_i x_i$
+- **Max**: $\max_i x_i$
+- **Product**: $\prod_i x_i$
 
 These are NOT permutation invariant:
-- **Concatenation**: [x_1, x_2, ..., x_n]
+- **Concatenation**: $[x_1, x_2, \ldots, x_n]$
 - **RNN**: processes sequentially
 
 ---
@@ -183,11 +183,11 @@ These are NOT permutation invariant:
 
 Apply message passing multiple times:
 
-**Layer 1**: h^(1) = MP^(1)(h^(0))
-**Layer 2**: h^(2) = MP^(2)(h^(1))
-**Layer K**: h^(K) = MP^(K)(h^(K-1))
+$$\text{Layer 1: } h^{(1)} = \text{MP}^{(1)}(h^{(0)})$$
+$$\text{Layer 2: } h^{(2)} = \text{MP}^{(2)}(h^{(1)})$$
+$$\text{Layer K: } h^{(K)} = \text{MP}^{(K)}(h^{(K-1)})$$
 
-Where MP^(k) is the message passing operation at layer k.
+Where $\text{MP}^{(k)}$ is the message passing operation at layer k.
 
 ### Receptive Field
 
@@ -224,23 +224,23 @@ After 3 layers:
 
 ### Single Layer
 
-**H^(k) = σ(Ã H^(k-1) W^(k))**
+$$H^{(k)} = \sigma(\tilde{A} H^{(k-1)} W^{(k)})$$
 
 Where:
-- **H^(k) ∈ ℝ^(n×d)**: Node representations at layer k
-- **Ã**: Normalized adjacency matrix
-- **W^(k) ∈ ℝ^(d×d')**: Learnable weights
-- **σ**: Activation function
+- $H^{(k)} \in \mathbb{R}^{n \times d}$: Node representations at layer k
+- $\tilde{A}$: Normalized adjacency matrix
+- $W^{(k)} \in \mathbb{R}^{d \times d'}$: Learnable weights
+- $\sigma$: Activation function
 
 ### With Self-Loops
 
-**H^(k) = σ((A + I)H^(k-1) W^(k))**
+$$H^{(k)} = \sigma((A + I)H^{(k-1)} W^{(k)})$$
 
 Or with normalization:
 
-**H^(k) = σ(D̃^(-1/2) Ã D̃^(-1/2) H^(k-1) W^(k))**
+$$H^{(k)} = \sigma(\tilde{D}^{-1/2} \tilde{A} \tilde{D}^{-1/2} H^{(k-1)} W^{(k)})$$
 
-Where Ã = A + I
+Where $\tilde{A} = A + I$
 
 ---
 
@@ -250,7 +250,7 @@ Where Ã = A + I
 
 Predict properties of individual nodes.
 
-**Output**: h_v^(K) for each node v
+**Output**: $h_v^{(K)}$ for each node $v$
 
 **Examples**:
 - Node classification (predict user category)
@@ -263,9 +263,9 @@ Predict properties of edges or node pairs.
 **Output**: Combine node representations
 
 **Methods**:
-- Concatenation: [h_u || h_v]
-- Dot product: h_u^T h_v
-- Learned function: MLP(h_u, h_v)
+- Concatenation: $[h_u \, || \, h_v]$
+- Dot product: $h_u^T h_v$
+- Learned function: $\text{MLP}(h_u, h_v)$
 
 **Examples**:
 - Link prediction (will edge exist?)
@@ -278,10 +278,10 @@ Predict properties of entire graphs.
 **Output**: Single vector per graph
 
 **Readout Function** (must be permutation invariant):
-- **Sum**: h_G = ∑_{v ∈ V} h_v
-- **Mean**: h_G = 1/|V| ∑_{v ∈ V} h_v
-- **Max**: h_G = MAX({h_v : v ∈ V})
-- **Attention**: h_G = ∑_{v ∈ V} α_v h_v
+- **Sum**: $h_G = \sum_{v \in V} h_v$
+- **Mean**: $h_G = \frac{1}{|V|} \sum_{v \in V} h_v$
+- **Max**: $h_G = \max(\{h_v : v \in V\})$
+- **Attention**: $h_G = \sum_{v \in V} \alpha_v h_v$
 
 **Examples**:
 - Molecule property prediction
@@ -295,7 +295,7 @@ Predict properties of entire graphs.
 
 With many layers, node representations become too similar:
 
-**h_v^(K) ≈ h_u^(K)** for all v, u
+$$h_v^{(K)} \approx h_u^{(K)} \text{ for all } v, u$$
 
 ### Why It Happens
 
@@ -306,7 +306,7 @@ With many layers, node representations become too similar:
 ### Solutions
 
 1. **Limit depth**: Use fewer layers (typically 2-4)
-2. **Skip connections**: h^(k) = h^(k-1) + f(h^(k-1))
+2. **Skip connections**: $h^{(k)} = h^{(k-1)} + f(h^{(k-1)})$
 3. **Node-specific transformations**: Different weights per node
 4. **Jumping knowledge**: Combine representations from all layers
 
@@ -351,9 +351,9 @@ This means there exist non-isomorphic graphs that GNNs cannot distinguish.
 
 GIN is provably as powerful as 1-WL test:
 
-**h_v^(k) = MLP^(k)((1 + ε^(k)) · h_v^(k-1) + ∑_{u ∈ N(v)} h_u^(k-1))**
+$$h_v^{(k)} = \text{MLP}^{(k)}\left((1 + \epsilon^{(k)}) \cdot h_v^{(k-1)} + \sum_{u \in N(v)} h_u^{(k-1)}\right)$$
 
-Where ε is either learned or fixed.
+Where $\epsilon$ is either learned or fixed.
 
 ---
 
@@ -382,7 +382,7 @@ Apply dropout to:
 
 ### Residual Connections
 
-**h^(k) = h^(k-1) + f(h^(k-1))**
+$$h^{(k)} = h^{(k-1)} + f(h^{(k-1)})$$
 
 Benefits:
 - Prevents over-smoothing

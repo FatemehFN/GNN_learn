@@ -21,12 +21,12 @@ Spectral graph theory studies graphs through the eigenvalues and eigenvectors of
 
 ### Graph Adjacency Matrix
 
-The adjacency matrix **A** is the fundamental representation:
+The adjacency matrix $A$ is the fundamental representation:
 
-**A ∈ {0,1}^(n×n)** where:
-- **A[i,j] = 1** if edge exists between nodes i and j
-- **A[i,j] = 0** otherwise
-- For undirected graphs: **A is symmetric**
+$$A \in \{0,1\}^{n \times n}$$ where:
+- $A[i,j] = 1$ if edge exists between nodes i and j
+- $A[i,j] = 0$ otherwise
+- For undirected graphs: $A$ is symmetric
 
 **Example**: For a simple graph:
 ```
@@ -41,9 +41,9 @@ C [  0  1  0 ]
 
 ### Degree Matrix
 
-The degree matrix **D** is diagonal, where diagonal element is node degree:
+The degree matrix $D$ is diagonal, where diagonal element is node degree:
 
-**D[i,i] = deg(i) = ∑_j A[i,j]**
+$$D[i,i] = \deg(i) = \sum_j A[i,j]$$
 
 For our example:
 ```
@@ -61,15 +61,15 @@ C [  0  0  1 ]
 
 The **Graph Laplacian** is defined as:
 
-**L = D - A**
+$$L = D - A$$
 
 This is one of the most important matrices in spectral graph theory.
 
 **Properties**:
-- **Symmetric**: L = L^T
-- **Positive semi-definite**: All eigenvalues ≥ 0
-- **Zero eigenvalue exists**: L has smallest eigenvalue λ₀ = 0
-  - Eigenvector: all ones vector **1**
+- **Symmetric**: $L = L^T$
+- **Positive semi-definite**: All eigenvalues $\geq 0$
+- **Zero eigenvalue exists**: L has smallest eigenvalue $\lambda_0 = 0$
+  - Eigenvector: all ones vector $\mathbf{1}$
   - Connected graphs have exactly one zero eigenvalue
 - **Row sum is zero**: Each row sums to 0
 
@@ -86,14 +86,14 @@ C [  0  -1   1 ]
 
 To handle varying node degrees, we normalize:
 
-**L̃ = D^(-1/2) L D^(-1/2) = I - D^(-1/2) A D^(-1/2)**
+$$\tilde{L} = D^{-1/2} L D^{-1/2} = I - D^{-1/2} A D^{-1/2}$$
 
 Or using symmetric normalization:
 
-**L_sym = I - D^(-1/2) A D^(-1/2)**
+$$L_{\text{sym}} = I - D^{-1/2} A D^{-1/2}$$
 
 This normalized version:
-- Has eigenvalues in [0, 2]
+- Has eigenvalues in $[0, 2]$
 - Better conditioned numerically
 - Often more stable for optimization
 
@@ -101,9 +101,9 @@ This normalized version:
 
 An alternative normalization following random walk perspective:
 
-**L_rw = I - D^(-1) A**
+$$L_{\text{rw}} = I - D^{-1} A$$
 
-This has eigenvalues in [0, 2] and is used in some GNN variants.
+This has eigenvalues in $[0, 2]$ and is used in some GNN variants.
 
 ---
 
@@ -113,12 +113,12 @@ This has eigenvalues in [0, 2] and is used in some GNN variants.
 
 Any symmetric matrix can be decomposed as:
 
-**L = U Λ U^T**
+$$L = U \Lambda U^T$$
 
 Where:
-- **U**: Matrix of eigenvectors (columns are eigenvectors)
-- **Λ**: Diagonal matrix of eigenvalues
-- **U^T**: Transpose of U (orthogonal matrix)
+- $U$: Matrix of eigenvectors (columns are eigenvectors)
+- $\Lambda$: Diagonal matrix of eigenvalues
+- $U^T$: Transpose of U (orthogonal matrix)
 
 ### Interpretation
 
@@ -154,15 +154,15 @@ On graphs:
 
 ### Spectral Convolution Definition
 
-A spectral convolution with filter **g_θ** is defined as:
+A spectral convolution with filter $g_\theta$ is defined as:
 
-**y = g_θ(L) x = U g_θ(Λ) U^T x**
+$$y = g_\theta(L) x = U g_\theta(\Lambda) U^T x$$
 
 Where:
-- **x**: Input (e.g., node features)
-- **g_θ(Λ)**: Filter applied to eigenvalues
-- **U**: Eigenvectors of Laplacian
-- **y**: Output
+- $x$: Input (e.g., node features)
+- $g_\theta(\Lambda)$: Filter applied to eigenvalues
+- $U$: Eigenvectors of Laplacian
+- $y$: Output
 
 This is analogous to convolution in signal processing:
 - Fourier transform → spectral decomposition
@@ -172,8 +172,8 @@ This is analogous to convolution in signal processing:
 ### Problem: Computational Cost
 
 Direct spectral convolution requires:
-1. Computing eigendecomposition: **O(n³)**
-2. Multiplying by eigenvector matrix: **O(n²)**
+1. Computing eigendecomposition: $O(n^3)$
+2. Multiplying by eigenvector matrix: $O(n^2)$
 
 Infeasible for large graphs!
 
@@ -187,28 +187,28 @@ Infeasible for large graphs!
 
 Instead of computing eigendecomposition, we can approximate the filter using Chebyshev polynomials:
 
-**g_θ(Λ) ≈ ∑_{k=0}^{K} θ_k T_k(Λ̃)**
+$$g_\theta(\Lambda) \approx \sum_{k=0}^{K} \theta_k T_k(\tilde{\Lambda})$$
 
 Where:
-- **T_k**: Chebyshev polynomials
-- **Λ̃**: Normalized eigenvalues (rescaled to [-1, 1])
-- **θ_k**: Learnable coefficients
-- **K**: Order of polynomial approximation
+- $T_k$: Chebyshev polynomials
+- $\tilde{\Lambda}$: Normalized eigenvalues (rescaled to $[-1, 1]$)
+- $\theta_k$: Learnable coefficients
+- $K$: Order of polynomial approximation
 
 ### Chebyshev Polynomials
 
 Chebyshev polynomials satisfy:
-**T_k(x) = 2x T_{k-1}(x) - T_{k-2}(x)**
+$$T_k(x) = 2x T_{k-1}(x) - T_{k-2}(x)$$
 
 With base cases:
-- **T_0(x) = 1**
-- **T_1(x) = x**
+- $T_0(x) = 1$
+- $T_1(x) = x$
 
 First few polynomials:
-- **T_0(x) = 1**
-- **T_1(x) = x**
-- **T_2(x) = 2x² - 1**
-- **T_3(x) = 4x³ - 3x**
+- $T_0(x) = 1$
+- $T_1(x) = x$
+- $T_2(x) = 2x^2 - 1$
+- $T_3(x) = 4x^3 - 3x$
 
 ### Key Property
 
@@ -280,31 +280,31 @@ Where:
 
 The fundamental operation in a GCN layer is:
 
-**Z^(k+1) = σ(Ã H^(k) W^(k))**
+$$Z^{(k+1)} = \sigma(\tilde{A} H^{(k)} W^{(k)})$$
 
 Where:
-- **H^(k) ∈ ℝ^(n×d_k)**: Node representations at layer k
-  - n = number of nodes
-  - d_k = dimension at layer k
-- **W^(k) ∈ ℝ^(d_k × d_{k+1})**: Weight matrix
-- **Ã = D^(-1/2)(A + I)D^(-1/2)**: Normalized adjacency with self-loops
-- **σ**: Nonlinearity (typically ReLU)
-- **Z^(k+1) ∈ ℝ^(n×d_{k+1})**: Output representations
+- $H^{(k)} \in \mathbb{R}^{n \times d_k}$: Node representations at layer k
+  - $n$ = number of nodes
+  - $d_k$ = dimension at layer k
+- $W^{(k)} \in \mathbb{R}^{d_k \times d_{k+1}}$: Weight matrix
+- $\tilde{A} = D^{-1/2}(A + I)D^{-1/2}$: Normalized adjacency with self-loops
+- $\sigma$: Nonlinearity (typically ReLU)
+- $Z^{(k+1)} \in \mathbb{R}^{n \times d_{k+1}}$: Output representations
 
 ### Normalized Adjacency Matrix Details
 
 The normalized adjacency matrix is crucial:
 
-**Ã = D̃^(-1/2) (A + I) D̃^(-1/2)**
+$$\tilde{A} = \tilde{D}^{-1/2} (A + I) \tilde{D}^{-1/2}$$
 
 Where:
-- **A**: Original adjacency matrix
-- **I**: Identity matrix (self-loops)
-- **D̃**: Diagonal degree matrix of (A + I)
-- **D̃[i,i] = deg(i) + 1** (degree plus self-loop)
+- $A$: Original adjacency matrix
+- $I$: Identity matrix (self-loops)
+- $\tilde{D}$: Diagonal degree matrix of $(A + I)$
+- $\tilde{D}[i,i] = \deg(i) + 1$ (degree plus self-loop)
 
 **Symmetrically normalized** version:
-**Ã[i,j] = (A+I)[i,j] / √((deg(i)+1)(deg(j)+1))**
+$$\tilde{A}[i,j] = \frac{(A+I)[i,j]}{\sqrt{(\deg(i)+1)(\deg(j)+1)}}$$
 
 **Why this normalization?**
 1. **Self-loops**: Each node incorporates its own features
@@ -316,17 +316,17 @@ Where:
 
 Stack multiple GCN layers:
 
-**Input**: X^(0) = X (node features)
+**Input**: $X^{(0)} = X$ (node features)
 
-**Layer 1**: Z^(1) = σ(Ã X^(0) W^(0))
+$$\text{Layer 1: } Z^{(1)} = \sigma(\tilde{A} X^{(0)} W^{(0)})$$
 
-**Layer 2**: Z^(2) = σ(Ã Z^(1) W^(1))
+$$\text{Layer 2: } Z^{(2)} = \sigma(\tilde{A} Z^{(1)} W^{(1)})$$
 
-**Layer L**: Z^(L) = σ(Ã Z^(L-1) W^(L-1))
+$$\text{Layer L: } Z^{(L)} = \sigma(\tilde{A} Z^{(L-1)} W^{(L-1)})$$
 
 **Output**: For node classification, typically:
-- Remove activation from last layer: **Ỹ = Ã Z^(L-1) W^(L-1)**
-- Or keep activation but use softmax: **Ŷ = softmax(Ã Z^(L-1) W^(L-1))**
+- Remove activation from last layer: $\tilde{Y} = \tilde{A} Z^{(L-1)} W^{(L-1)}$
+- Or keep activation but use softmax: $\hat{Y} = \text{softmax}(\tilde{A} Z^{(L-1)} W^{(L-1)})$
 
 ---
 
@@ -339,12 +339,12 @@ Each GCN layer can be viewed as message passing:
 **1. Message computation**: No explicit message function; node features are the messages
 
 **2. Aggregation**:
-**m_v^(k) = ∑_{u ∈ N(v) ∪ {v}} (A+I)[u,v] / √((deg(u)+1)(deg(v)+1)) · h_u^(k-1)**
+$$m_v^{(k)} = \sum_{u \in N(v) \cup \{v\}} \frac{(A+I)[u,v]}{\sqrt{(\deg(u)+1)(\deg(v)+1)}} \cdot h_u^{(k-1)}$$
 
 This is normalized neighbor aggregation.
 
 **3. Update**:
-**h_v^(k) = σ(W^(k) · m_v^(k))**
+$$h_v^{(k)} = \sigma(W^{(k)} \cdot m_v^{(k)})$$
 
 Apply weight matrix and activation.
 
@@ -389,13 +389,13 @@ Where **b^(k) ∈ ℝ^(d_{k+1})** is a learnable bias vector.
 
 Standard cross-entropy loss on labeled nodes only:
 
-**L = -∑_{i ∈ Y_L} ∑_{c=1}^{C} y_ic log(ŷ_ic)**
+$$\mathcal{L} = -\sum_{i \in \mathcal{Y}_L} \sum_{c=1}^{C} y_{ic} \log(\hat{y}_{ic})$$
 
 Where:
-- **Y_L**: Set of labeled nodes
-- **y_ic**: True label (one-hot)
-- **ŷ_ic = softmax(Z^(L))_ic**: Predicted probability
-- **C**: Number of classes
+- $\mathcal{Y}_L$: Set of labeled nodes
+- $y_{ic}$: True label (one-hot)
+- $\hat{y}_{ic} = \text{softmax}(Z^{(L)})_{ic}$: Predicted probability
+- $C$: Number of classes
 
 **Key difference from supervised learning**: Loss is computed on small labeled set, but network uses structural information from entire graph.
 

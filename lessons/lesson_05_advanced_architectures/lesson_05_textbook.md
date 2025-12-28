@@ -45,51 +45,43 @@ This lesson covers two influential architectures that shaped modern GNN developm
 For layer $k$, GraphSAGE follows these steps:
 
 **Step 1: Neighborhood Sampling**
-```
-N_v^k = Sample(N(v), sample_size)
-```
+$$N_v^k = \text{Sample}(N(v), \text{sample\_size})$$
+
 where $N(v)$ is the neighborhood of node $v$ and sample_size is the number of samples.
 
 **Step 2: Aggregate Neighbor Embeddings**
-```
-h_N(v)^k = AGGREGATE({h_u^{k-1} : u ∈ N_v^k})
-```
+$$h_{N(v)}^k = \text{AGGREGATE}(\{h_u^{k-1} : u \in N_v^k\})$$
 
 **Step 3: Update Node Embedding**
-```
-h_v^k = σ(W^k · [h_v^{k-1} || h_N(v)^k])
-```
+$$h_v^k = \sigma(W^k \cdot [h_v^{k-1} \, || \, h_{N(v)}^k])$$
 
 where:
 - $||$ denotes concatenation
 - $W^k$ is a learnable weight matrix
-- $σ$ is a non-linearity (ReLU)
+- $\sigma$ is a non-linearity (ReLU)
 
 ### Aggregation Functions
 
 GraphSAGE proposes multiple aggregators:
 
 #### 1. Mean Aggregator
-```
-h_N(v)^k = 1/|N_v^k| Σ_{u ∈ N_v^k} h_u^{k-1}
-```
+$$h_{N(v)}^k = \frac{1}{|N_v^k|} \sum_{u \in N_v^k} h_u^{k-1}$$
+
 Simple average of neighbor embeddings.
 
 #### 2. LSTM Aggregator
-```
-h_N(v)^k = LSTM([h_{u1}^{k-1}, h_{u2}^{k-1}, ...])
-```
+$$h_{N(v)}^k = \text{LSTM}([h_{u_1}^{k-1}, h_{u_2}^{k-1}, \ldots])$$
+
 Applies LSTM sequentially over neighbor embeddings. Order matters.
 
 #### 3. Pooling Aggregator
-```
-h_N(v)^k = max_pool({MLP(h_u^{k-1}) : u ∈ N_v^k})
-```
+$$h_{N(v)}^k = \max\_\text{pool}(\{\text{MLP}(h_u^{k-1}) : u \in N_v^k\})$$
+
 Element-wise max pooling over neighbor features transformed by MLP.
 
 ### Training Procedure
 
-**Input**: Graph $G = (V, E)$, node features $X$, labels for subset $S ⊂ V$
+**Input**: Graph $G = (V, E)$, node features $X$, labels for subset $S \subset V$
 
 **Mini-batch Stochastic Gradient Descent**:
 
@@ -162,23 +154,20 @@ GIN is designed to match WL test expressiveness using injective aggregation.
 
 #### GIN Layer
 
-```
-h_v^{k+1} = MLP^k((1 + ε_k) · h_v^k + Σ_{u ∈ N(v)} h_u^k)
-```
+$$h_v^{k+1} = \text{MLP}^k\left((1 + \epsilon_k) \cdot h_v^k + \sum_{u \in N(v)} h_u^k\right)$$
 
 where:
-- $ε_k$ is a learnable parameter (or fixed, e.g., 0)
-- $MLP^k$ is a multi-layer perceptron
-- $(1 + ε_k) · h_v^k$ ensures node's own embedding is distinct from aggregation
+- $\epsilon_k$ is a learnable parameter (or fixed, e.g., 0)
+- $\text{MLP}^k$ is a multi-layer perceptron
+- $(1 + \epsilon_k) \cdot h_v^k$ ensures node's own embedding is distinct from aggregation
 
 #### Injective Aggregation Guarantee
 
 The sum aggregation with MLPs is provably injective:
 
 **Lemma**: If $f$ and $h$ are injective and continuous, then:
-```
-x ↦ f(x + Σ_{i=1}^n h(y_i))
-```
+$$x \mapsto f\left(x + \sum_{i=1}^n h(y_i)\right)$$
+
 is injective in $x$ and all $y_i$ (under mild conditions).
 
 ### WL Expressiveness Analysis
@@ -197,16 +186,12 @@ GIN can match different WL variants:
 
 #### GIN Architecture
 
-1. **Input**: Node features $x_v ∈ ℝ^{d_{in}}$
+1. **Input**: Node features $x_v \in \mathbb{R}^{d_{\text{in}}}$
 2. **Hidden Layers**: For $k = 0$ to $K-1$:
-   ```
-   a_v^{k+1} = Σ_{u ∈ N(v) ∪ {v}} h_u^k
-   h_v^{k+1} = ReLU(W_1[h_v^k || (a_v^{k+1} - h_v^k)])
-   ```
+   $$a_v^{k+1} = \sum_{u \in N(v) \cup \{v\}} h_u^k$$
+   $$h_v^{k+1} = \text{ReLU}(W_1[h_v^k \, || \, (a_v^{k+1} - h_v^k)])$$
 3. **Readout**: Graph-level representation (if needed):
-   ```
-   h_G = Σ_v h_v^K
-   ```
+   $$h_G = \sum_v h_v^K$$
 
 ### Expressive Power Limitations
 
